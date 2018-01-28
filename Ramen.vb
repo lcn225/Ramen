@@ -31,6 +31,7 @@ Public Class Ramen_Main
         Dim line As String
 
         Dim combo As ComboBox = Me.Controls("batch" & i & "_combobox")
+        combo.Items.Clear()
 
         Dim batchList(0 To 1, 0 To 30) As String
         Dim index As Integer = 0
@@ -58,10 +59,12 @@ Public Class Ramen_Main
 
         Dim strTemp As String = ""
         Dim iLine As Integer
+        Dim result As String = ""
+
         FileOpen(1, "match.csv", OpenMode.Input)
         iLine = 1
         strTemp = LineInput(1)
-        Do While Not EOF(1) And iLine < i   '循环读取一行数据
+        Do While Not EOF(1) And iLine < i + 1   '循环读取一行数据
             strTemp = LineInput(1)    '读入一行数据
             iLine = iLine + 1
         Loop
@@ -71,16 +74,16 @@ Public Class Ramen_Main
         Label2.Text = strTemp
 
         Dim dash As Integer = 0
-        For index = 1 To j
+        For index = 0 To j - 1
             dash = InStr(dash + 1, strTemp, ",")
         Next
 
         Dim dash2 As Integer = InStr(dash + 1, strTemp, ",")
 
-        Dim result As String = Mid(strTemp, dash + 1, dash2 - dash - 1)
+        result = Mid(strTemp, dash + 1, dash2 - dash - 1)
 
         If j = 0 Then
-            result = Mid(strTemp, 1, dash - 1)
+            result = Mid(strTemp, 1, dash2 - 1)
         End If
 
         'Label1.Text = Mid(strTemp, dash + 1, dash2 - dash - 1)
@@ -105,8 +108,9 @@ Public Class Ramen_Main
     End Sub
 
     Private Sub batch_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles batchQty_ComboBox.SelectedIndexChanged
-        batchShow(batchQty_ComboBox.SelectedIndex + 2)
+        batchShow(batchQty_ComboBox.SelectedItem.ToString)
     End Sub
+    '配菜数量变更后刷新
 
     Private Sub match_Button_Click(sender As Object, e As EventArgs) Handles match_Button.Click
 
@@ -114,6 +118,7 @@ Public Class Ramen_Main
         Dim point As Integer = 0
         Dim comboSelect1 As Integer = 0
         Dim comboSelect2 As Integer = 0
+        Dim temp As Integer = 0
 
 
         For index = 1 To num - 1
@@ -122,7 +127,8 @@ Public Class Ramen_Main
                 Dim combo2 As ComboBox = Me.Controls("batch" & j1 & "_combobox")
                 comboSelect1 = Mid(combo.SelectedItem.ToString, 1, InStr(combo.SelectedItem.ToString, "."))
                 comboSelect2 = Mid(combo2.SelectedItem.ToString, 1, InStr(combo2.SelectedItem.ToString, "."))
-                point = point + matchpoint(comboSelect1, comboSelect2)
+                temp = matchpoint(comboSelect1, comboSelect2)
+                point = point + temp
             Next
 
         Next
@@ -153,8 +159,10 @@ Public Class Ramen_Main
     Private Sub super_Button_Click(sender As Object, e As EventArgs) Handles super_Button.Click
         Dim num As Integer = Int(Me.batchQty_ComboBox.SelectedItem.ToString)
         '要计算的配菜的总数
-        Dim maxPintBatch(num) As Integer
+        Dim maxPointBatch(num) As Integer
         '用来存储最高值的配方组合
+        Dim maxpoint As Integer = 0
+
         Dim batchNum As Integer = Me.batch1_ComboBox.Items.Count
         '获取可用配料数
 
@@ -162,7 +170,7 @@ Public Class Ramen_Main
         '配料列表
 
         For index = 1 To batchNum
-            batchList(index - 1) = Mid(batch1_ComboBox.Items(index - 1).ToString, 1, InStr(batch1_ComboBox.Items(index - 1).ToString, "."))
+            batchList(index - 1) = Mid(batch1_ComboBox.Items(index - 1).ToString, 1, InStr(batch1_ComboBox.Items(index - 1).ToString, ".") - 1)
         Next
         '将可用配料的编号写入配料列表
 
@@ -175,21 +183,34 @@ Public Class Ramen_Main
         Dim matchnum As Integer = Math.Pow(batchNum, num)
         '总共要计算多少次？
 
-        For l = 0 To matchnum
-            For x = 0 To num - 1
-                Dim temp As Integer = Math.Pow(batchNum, num - x - 1)
-                If x = 0 Then
-                    tempList(x + 1) = l Mod temp
-                    tempList(x) = l \ temp
-                Else
-                    tempList(x + 1) = tempList(x) Mod temp
-                    tempList(x) = tempList(x) \ temp
-                End If
+        Dim radix, quo, remainder As Integer
 
+        For l = 0 To matchnum
+            tempList(0) = l
+            '将l放入第一位
+            For x = 0 To num - 1
+                radix = Math.Pow(batchNum, num - x - 1)
+                quo = tempList(x) \ radix
+                remainder = tempList(x) Mod radix
+                tempList(x + 1) = remainder
+                tempList(x) = batchList(quo)
             Next
+            '从第一位开始，值除以位数代表值，余数放入下一位，商放入本位
+            If matchTotalPoint(tempList) > maxpoint Then
+                maxpoint = matchTotalPoint(tempList)
+                For i = 0 To num - 1
+                    maxPointBatch(i) = tempList(i)
+                Next
+            End If
+            '比较是否是最大值，是则记录
+
         Next
 
+        Label2.Text = maxpoint
 
+        For index = 0 To num - 1
+            Label3.Text = Label3.Text & "," & maxPointBatch(index)
+        Next
 
     End Sub
 End Class

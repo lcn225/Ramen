@@ -46,6 +46,7 @@ Partial Class Ramen_Main
         Me.Label2 = New System.Windows.Forms.Label()
         Me.match_Button = New System.Windows.Forms.Button()
         Me.super_Button = New System.Windows.Forms.Button()
+        Me.Label3 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'batchQty_ComboBox
@@ -255,11 +256,21 @@ Partial Class Ramen_Main
         Me.super_Button.Text = "计算最佳匹配"
         Me.super_Button.UseVisualStyleBackColor = True
         '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(404, 268)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(41, 12)
+        Me.Label3.TabIndex = 24
+        Me.Label3.Text = "Label3"
+        '
         'Ramen_Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(684, 469)
+        Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.super_Button)
         Me.Controls.Add(Me.match_Button)
         Me.Controls.Add(Me.Label2)
@@ -315,4 +326,5 @@ Partial Class Ramen_Main
     Friend WithEvents Label2 As Label
     Friend WithEvents match_Button As Button
     Friend WithEvents super_Button As Button
+    Friend WithEvents Label3 As Label
 End Class
